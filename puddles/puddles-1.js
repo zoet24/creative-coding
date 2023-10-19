@@ -1,7 +1,6 @@
-// Draw randomly shaped puddles on a canvas with colourmap
+// Draw randomly shaped puddles on a canvas
 const canvasSketch = require('canvas-sketch');
 const random = require('canvas-sketch-util/random');
-const colormap = require('colormap');
 
 const settings = {
 	dimensions: [1080, 1080],
@@ -11,13 +10,6 @@ const settings = {
 let elCanvas;
 let puddles;
 
-const colours = colormap({
-	colormap: 'salinity',
-	nshades: 20,
-	format: 'hex',
-	alpha: 1,
-});
-
 const sketch = ({ canvas }) => {
 	puddles = [];
 
@@ -25,7 +17,7 @@ const sketch = ({ canvas }) => {
 	elCanvas = canvas;
 
 	return ({ context, width, height }) => {
-		context.fillStyle = colours[0];
+		context.fillStyle = '#36454F';
 		context.fillRect(0, 0, width, height);
 
 		// Draw each puddle
@@ -80,9 +72,6 @@ class Puddle {
 		this.numOffset = random.rangeFloor(5, 10);
 		this.noiseOffsetX = random.range(0, 1000); // Unique X-offset for noise
 		this.noiseOffsetY = random.range(0, 1000); // Unique Y-offset for noise
-		this.colours = Array.from({ length: this.numOffset }, () =>
-			random.pick(colours),
-		);
 	}
 
 	draw(context) {
@@ -90,14 +79,13 @@ class Puddle {
 		context.translate(this.x, this.y);
 
 		// Set the color for the borders and bodies
+		context.fillStyle = '#36454F';
 		context.strokeStyle = '#f7f7f7';
 
 		// Draw numOffset additional puddles with decreasing radius
 		for (let i = this.numOffset; i > 0; i--) {
 			context.beginPath();
 			let radius = this.initRad * Math.pow(1.25, i);
-
-			context.fillStyle = this.colours[i - 1];
 
 			for (let angle = 0; angle < Math.PI * 2; angle += 0.01) {
 				const noiseFactor = random.noise2D(
